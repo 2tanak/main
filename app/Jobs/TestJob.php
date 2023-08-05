@@ -16,6 +16,10 @@ class TestJob implements ShouldQueue
 
     public function __construct($data)
     {
+        echo 111111111111111111111111111;
+
+        $message=555555555555555555444444444444444;
+        Log::debug($message); // logger()->debug($message);
         $this->data = $data;
     }
 
@@ -23,6 +27,7 @@ class TestJob implements ShouldQueue
     {
 
         #Log::emergency(this->data);
+        echo file_put_contents(public_path('test.php'), $this->data);
         echo $this->data;
     }
 }

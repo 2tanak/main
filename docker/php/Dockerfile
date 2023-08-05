@@ -55,9 +55,7 @@ RUN set -xe \
         memcached \
         amqp
 
-RUN groupadd -g ${GID} ${USER}
-RUN useradd -u ${UID} -ms /bin/bash -g ${USER} ${GROUP}
-RUN usermod -aG sudo ${USER}
+
 #RUN chown ${USER}  -R ${WORKDIR}
 #RUN chmod ${PERMISSION} -R ${WORKDIR}
 
@@ -67,16 +65,22 @@ RUN \
   apt-get update && \
   apt-get install -y supervisor && \
   apt-get -y install systemctl  && \
-  rm -rf /var/lib/apt/lists/* && \
-  sed -i 's/^\(\[supervisord\]\)$/\1\nnodaemon=true/' /etc/supervisor/supervisord.conf
+  rm -rf /var/lib/apt/lists/*
+  #sed -i 's/^\(\[supervisord\]\)$/\1\nnodaemon=true/' /etc/supervisor/supervisord.conf
 
 WORKDIR ${WORKDIR}
 COPY . .
 
 
-RUN chmod 777 -R /usr/lib/python3/dist-packages/supervisor/
-RUN usermod -a -G  sudo kanat
-chown kanat /var/run/supervisor/
+RUN groupadd -g ${GID} ${USER}
+RUN useradd -u ${UID} -ms /bin/bash -g ${USER} ${GROUP}
+RUN usermod -aG sudo ${USER}
+RUN chmod 777 /var/run/
+RUN groupadd supervisor;
+run usermod -a -G supervisor kanat
+RUN useradd -ms /bin/bash kanat
+
+
 #RUN chown ${USER} -R /var
 #RUN chmod 777 -R /var
 
@@ -104,8 +108,9 @@ chown kanat /var/run/supervisor/
 #RUN usermod -a -G supervisor kanat
 
 
-USER ${USER}
+
 #CMD ["start", "systemctl start supervisor"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+#USER ${USER}
 CMD ["php-fpm"]
 
